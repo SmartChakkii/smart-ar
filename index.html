@@ -4,9 +4,33 @@
     <title>SmartChakkii AR</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    
+    <style>
+      /* Style for the instruction prompt */
+      #instruction-overlay {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+        text-align: center;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 10px;
+        font-family: Arial, sans-serif;
+        pointer-events: none; /* Allows clicks to pass through to the scene */
+        display: block; /* Shown by default */
+      }
+    </style>
   </head>
 
   <body style="margin: 0; overflow: hidden;">
+    <div id="instruction-overlay">
+      <h2>Move camera towards image</h2>
+      <p>Point at the SmartChakkii logo to begin</p>
+    </div>
+
     <a-scene 
       embedded 
       arjs="sourceType: webcam; debugUIEnabled: false;" 
@@ -35,14 +59,20 @@
     <script>
       const marker = document.querySelector("#marker");
       const video = document.querySelector("#arVideo");
+      const overlay = document.querySelector("#instruction-overlay");
 
-      // Mobile fix: Unmute and play when logo is detected
       marker.addEventListener("markerFound", () => {
+        // Hide the prompt when marker is detected
+        overlay.style.display = "none";
+        
         video.play();
         video.muted = false; 
       });
 
       marker.addEventListener("markerLost", () => {
+        // Show the prompt again when marker is lost
+        overlay.style.display = "block";
+        
         video.pause();
       });
 
