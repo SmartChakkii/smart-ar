@@ -4,32 +4,15 @@
     <title>SmartChakkii AR</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-    
-    <script>
-      // This custom component handles the play/pause logic
-      AFRAME.registerComponent('vidhandler', {
-        init: function () {
-          this.toggle = false;
-          this.vid = document.querySelector("#arVideo");
-          this.vid.pause(); // Ensure it starts paused
-        },
-        tick: function () {
-          if (this.el.object3D.visible == true) {
-            if (!this.toggle) {
-              this.toggle = true;
-              this.vid.play();
-            }
-          } else {
-            this.toggle = false;
-            this.vid.pause();
-          }
-        }
-      });
-    </script>
   </head>
 
   <body style="margin: 0; overflow: hidden;">
-    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+    <a-scene 
+      embedded 
+      arjs="sourceType: webcam; debugUIEnabled: false;" 
+      vr-mode-ui="enabled: false" 
+      xr-mode-ui="enabled: false">
+      
       <a-assets>
         <video id="arVideo" 
                src="https://firebasestorage.googleapis.com/v0/b/smartchakkii.firebasestorage.app/o/smartchakii.mp4?alt=media&token=36a16665-82d5-4fc3-a9a3-974e00016519" 
@@ -37,15 +20,37 @@
                loop="true" 
                crossorigin="anonymous" 
                playsinline 
-               webkit-playsinline>
+               webkit-playsinline 
+               muted> 
         </video>
       </a-assets>
 
-      <a-marker type="pattern" url="pattern-trigger-image.patt" vidhandler>
-        <a-video src="#arVideo" height="0.9" rotation="-90 0 0" position="0 0 0"></a-video>
+      <a-marker type="pattern" url="pattern-trigger-image.patt" id="marker">
+        <a-video src="#arVideo" width="1.6" height="0.9" rotation="-90 0 0" position="0 0 0"></a-video>
       </a-marker>
 
       <a-entity camera></a-entity>
     </a-scene>
+
+    <script>
+      const marker = document.querySelector("#marker");
+      const video = document.querySelector("#arVideo");
+
+      // Mobile fix: Unmute and play when logo is detected
+      marker.addEventListener("markerFound", () => {
+        video.play();
+        video.muted = false; 
+      });
+
+      marker.addEventListener("markerLost", () => {
+        video.pause();
+      });
+
+      // User interaction to "unlock" audio for mobile browsers
+      window.addEventListener('click', function () {
+          video.play();
+          video.pause(); 
+      }, { once: true });
+    </script>
   </body>
 </html>
